@@ -410,9 +410,7 @@ For this, you can modify a predefined style by using the `copy` function. Make t
 
 ```kotlin 
 Text(
-                    text = name,
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                )
+    text = name,
+    style = MaterialTheme.typography.headlineMedium.copy(
+    fontWeight = FontWeight.ExtraBold))
 ```
