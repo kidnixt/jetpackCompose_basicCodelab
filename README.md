@@ -414,3 +414,56 @@ Text(
     style = MaterialTheme.typography.headlineMedium.copy(
     fontWeight = FontWeight.ExtraBold))
 ```
+
+### Tweak your app's theme
+You can find everything related to the current theme in the files inside the `ui/theme` folder. For example, the default colors that we have been using so far are defined in `Color.kt.`
+
+Let's start by defining new colors. Add these to `Color.kt`:
+```kotlin 
+val Navy = Color(0xFF073042)
+val Blue = Color(0xFF4285F4)
+val LightBlue = Color(0xFFD7EFFE)
+val Chartreuse = Color(0xFFEFF7CF)
+```
+Now assign them to the MaterialTheme's palette in `Theme.kt:`
+
+```kotlin 
+
+private val LightColorScheme = lightColorScheme(
+    surface = Blue,
+    onSurface = Color.White,
+    primary = LightBlue,
+    onPrimary = Navy
+)
+
+```
+If you go back to `MainActivity.kt` and refresh the preview, the preview colors don't actually change! That's because by default, your Preview will use dynamic colors. You can see the logic for adding dynamic coloring in `Theme.kt`, using the `dynamicColor` boolean parameter.
+
+
+### Replace button with an icon 
+* Use the `IconButton` composable together with a child Icon.
+* Use `Icons.Filled.ExpandLess` and `Icons.Filled.ExpandMore`, which are available in the `material-icons-extended` artifact. Add the following line to dependencies in your `app/build.gradle` file.
+
+```kotlin 
+implementation "androidx.compose.material:material-icons-extended:$compose_version"
+```
+
+### Use string resources
+Content description for "Show more" and "show less" should be present and you can add them with a simple if statement. However, hard-coding strings is a bad practice and you should get them from the `strings.xml` file.
+
+You can use "Extract string resource" on each string, available in "Context Actions" in Android Studio to do this automatically.
+
+Alternatively, open `app/src/res/values/strings.xml` and add the following resources:
+
+```kotlin 
+<string name="show_less">Show less</string>
+<string name="show_more">Show more</string>
+```
+
+### Showing more
+The "Composem ipsum" text appears and disappears, triggering a change in size of each card
+* Add a new `Text `to the Column inside `Greeting` that is displayed when the item is expanded.
+* Remove the `extraPadding` and instead apply the `animateContentSize` modifier to the `Row`. This is going to automate the process of creating the animation, which would be hard to do manually. Also, it removes the need to `coerceAtLeast`.
+
+### Add elevation and shapes 
+You could use the `shadow` modifier together with `clip` modifier to achieve the card look. However, there's a Material composable that does exactly that: `Card`. You can change the Card's colors by calling `CardDefaults.cardColors`and overriding the color you want to change.
