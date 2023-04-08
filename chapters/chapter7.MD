@@ -1,6 +1,6 @@
 # Chapter 7
 
-### State Holding
+### State Hoisting
 
 In Composable functions, state that is read or modified by multiple functions should live in a common ancestor—this process is called **state hoisting**. To hoist means to lift or elevate.
 
