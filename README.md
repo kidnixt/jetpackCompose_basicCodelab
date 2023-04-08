@@ -322,3 +322,97 @@ private fun Greetings(
 > Note: Make sure you import androidx.compose.foundation.lazy.items as Android Studio will pick a different items function by default.
 
 ![](https://developer.android.com/static/codelabs/jetpack-compose-basics/img/2e29949d9d9b8690.gif)
+
+------------------------------------
+
+### Persisting State
+Our app has a problem: if you run the app on a device, click on the buttons and then you rotate, the onboarding screen is shown again. The `remember` function works **only as long as the composable is kept in the Composition.** When you rotate, the whole activity is restarted so all state is lost. This also happens with any configuration change and on process death.
+
+Instead of using `remember` you can use `rememberSaveable`. This will save each state surviving configuration changes (such as rotations) and process death.
+
+Now replace the use of `remember` in `shouldShowOnboarding` with `rememberSaveable`:
+```kotlin 
+var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
+```
+
+------------------------------------
+
+### Animating your list
+
+For this you'll use the `animateDpAsState` composable. It returns a State object whose `value` will continuously be updated by the animation until it finishes. It takes a "target value" whose type is `Dp`.
+
+Create an animated `extraPadding` that depends on the expanded state. Also, let's use the property delegate (the `by` keyword):
+```kotlin 
+
+@Composable
+private fun Greeting(name: String) {
+
+    var expanded by remember { mutableStateOf(false) }
+
+    val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp
+    )
+    ....
+```
+
+
+`animateDpAsState` takes an optional `animationSpec` parameter that lets you customize the animation. Let's do something more fun like adding a spring-based animation:
+```kotlin 
+val extraPadding by animateDpAsState(
+        if (expanded) 48.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
+
+    Surface(
+    ...
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(bottom = extraPadding.coerceAtLeast(0.dp))
+
+    ...
+
+    )
+```
+
+Any animation created with `**animate*AsState**` is interruptible. This means that if the target value changes in the middle of the animation, `**animate*AsState**` restarts the animation and points to the new value. Interruptions look especially natural with spring-based animations:
+
+![](https://developer.android.com/static/codelabs/jetpack-compose-basics/img/e7d244875b3b6b6f.gif)
+
+------------------------------------
+
+### Styling and theming your app
+
+If you open the `ui/theme/Theme.kt` file, you see that `BasicsCodelabTheme` uses `MaterialTheme` in its implementation
+
+`MaterialTheme` is a composable function that reflects the styling principles from the Material design specification. That styling information cascades down to the components that are inside its `content`, which may read the information to style themselves. In your UI, you are already using `BasicsCodelabTheme` as follows
+
+Because `BasicsCodelabTheme` wraps `MaterialTheme` internally, `MyApp` is styled with the properties defined in the theme. From any descendant composable you can retrieve three properties of `MaterialTheme`: `colorScheme`, `typography` and `shapes`. Use them to set a header style for one of your Texts:
+
+```kotlin 
+Column(modifier = Modifier
+                .weight(1f)
+                .padding(bottom = extraPadding.coerceAtLeast(0.dp))
+            ) {
+                Text(text = "Hello, ")
+                Text(text = name, style = MaterialTheme.typography.headlineMedium)
+            }
+
+```
+
+The `Text` composable in the example above sets a new `TextStyle`. You can create your own TextStyle, or you can retrieve a theme-defined style by using `MaterialTheme.typography`, which is preferred. This construct gives you access to the Material-defined text styles, such as `displayLarge, headlineMedium, titleSmall, bodyLarge, labelMedium` etc. In your example, you use the `headlineMedium` style defined in the theme.
+
+In general it's much better to keep your colors, shapes and font styles inside a MaterialTheme. For example, dark mode would be hard to implement if you hard-code colors and it would require a lot of error-prone work to fix.
+
+For this, you can modify a predefined style by using the `copy` function. Make the number extra bold:
+
+```kotlin 
+Text(
+                    text = name,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                )
+```
